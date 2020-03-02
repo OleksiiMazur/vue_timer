@@ -1,28 +1,46 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <TimerWrap />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import TimerWrap from './components/TimerWrap'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    TimerWrap
   }
 }
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  @import url('https://fonts.googleapis.com/css?family=Comfortaa&display=swap');
+  
+  body,html {
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 100;
+    height: 100%;
+    color: #fff;
+  }
+  * {
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 100;
+    margin: 0;
+    padding: 0;
+  }
+  #app {
+    box-sizing: border-box;
+    max-width: 700px;
+    width: 100%;
+    background-color: #222;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
 </style>
