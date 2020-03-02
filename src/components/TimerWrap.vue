@@ -86,7 +86,7 @@
             return {
                 'tHours': 0,
                 'tMinutes': 0,
-                'tSeconds': 12,
+                'tSeconds': 62,
                 'pause': false,
             }
         },
@@ -113,14 +113,28 @@
                 this.pause = true;
                 
                 let timerBack = setInterval(() => {
-                    if (this.tSeconds <= 0 || this.pause === false) {
+                    let ss = this.tSeconds,
+                        mm = this.tMinutes;
+                    
+                    if (ss <= 0 || this.pause === false) {
                         clearInterval(timerBack);
                         this.pause = false;
                         return;
                     }
-                    console.log(this.tSeconds.toString().length);
+
+                    ss--;
                     
-                    this.tSeconds--;
+                    if (ss > 59){
+                        mm = Math.trunc(ss / 60);
+                    } else {
+                        mm = 0;
+                    }
+                    if (Math.trunc(ss / 60) === ss / 60){
+                        console.log('60+')
+                    }
+
+                    this.tSeconds = ss;
+                    this.tMinutes = mm;
                 },1000);
             },
             pauseTimer: function () {
