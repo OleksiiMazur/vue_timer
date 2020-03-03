@@ -22,6 +22,7 @@ export default {
     font-family: 'Comfortaa', sans-serif;
     font-weight: 100;
     height: 100%;
+    overflow: hidden;
     color: #fff;
   }
   * {
@@ -31,6 +32,7 @@ export default {
     padding: 0;
   }
   #app {
+    overflow: hidden;
     box-sizing: border-box;
     max-width: 700px;
     width: 100%;

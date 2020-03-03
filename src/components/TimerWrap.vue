@@ -1,5 +1,7 @@
 <template>
-    <div class="timer">
+    <div class="timer"
+         :class="{playing: !pause}"
+         :style="{}">
         <h1 class="timer__title">
             It's timer time
         </h1>
@@ -7,14 +9,18 @@
             <div class="timer-group">
                 <button class="more"
                         :class="{disable: !pause}"
-                        @click="incrHours"
+                        @click="incr(3600)"
+                        @click.right.prevent
+                        v-longclick="() => incrFast(3600)"
                     >▲</button>
                 <span>
                     {{ disHours }}
                 </span>
                 <button class="less"
                         :class="{disable: !pause}"
-                        @click="decrHours"
+                        @click="decr(3600)"
+                        @click.right.prevent
+                        v-longclick="() => decrFast(3600)"
                     >▼</button>
             </div>
             <div class="devider"> : </div>
@@ -22,14 +28,18 @@
             <div class="timer-group">
                 <button class="more"
                         :class="{disable: !pause}"
-                        @click="incrMinutes"
+                        @click="incr(60)"
+                        @click.right.prevent
+                        v-longclick="() => incrFast(60)"
                     >▲</button>
                 <span>
                     <i v-show="this.disMinutes.toString().length < 2">0</i>{{ disMinutes }}
                 </span>
                 <button class="less"
                         :class="{disable: !pause}"
-                        @click="decrMinutes"
+                        @click="decr(60)"
+                        @click.right.prevent
+                        v-longclick="() => decrFast(60)"
                     >▼</button>
             </div>
             <div class="devider"> : </div>
@@ -37,20 +47,21 @@
             <div class="timer-group">
                 <button class="more"
                         :class="{disable: !pause}"
-                        @click="incrSecond"
-                        v-longclick="incrTenSeconds"
+                        @click="incr(1)"
+                        @click.right.prevent
+                        v-longclick="() => incrFast(1)"
                     >▲</button>
                 <span>
                     <i v-show="this.disSeconds.toString().length < 2">0</i>{{ disSeconds }}
                 </span>
                 <button class="less"
                         :class="{disable: !pause}"
-                        @click="decrSecond"
-                        v-longclick="decrTenSeconds"
+                        @click="decr(1)"
+                        @click.right.prevent
+                        v-longclick="() => decrFast(1)"
                     >▼</button>
             </div>
         </div>
-    
         <div class="timer__controls">
             <button v-if="this.pause"
                     class="play"
@@ -62,75 +73,28 @@
                     @click="pauseTimer">
                 pause
             </button>
+            
+            <div class="gradient"></div>
         </div>
-    
-        <!-- <form id="set-time" class="input" @submit.prevent="totalSeconds">
-            <div class="timer-inputs">
-                <div class="input-group">
-                    <input type="number"
-                           id="hours"
-                           name="hours"
-                           v-model.number="hours">
-                    <div class="input-group__btns">
-                        <span class="more"
-                              @click="incrHH">▲</span>
-                        <span class="less"
-                              @click="decrHH">▼</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <input type="number"
-                           id="minutes"
-                           name="minutes"
-                           v-model.number="minutes">
-                    <div class="input-group__btns">
-                        <span class="more"
-                              @click="incrMM">▲</span>
-                        <span class="less"
-                              @click="decrMM">▼</span>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <input type="number"
-                           id="seconds"
-                           name="seconds"
-                           v-model.number="seconds">
-                    <div class="input-group__btns">
-                        <span class="more"
-                              @click="incrSS">▲</span>
-                        <span class="less"
-                              @click="decrSS">▼</span>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="submit-btn">
-                {{ submitBtnText }}
-            </button>
-        </form>
-        
-        <div class="timer__controls">
-            <button
-                v-for="btn in controls"
-                :key="btn.controlName"
-                :class="btn.controlName"
-            >
-                {{ btn.controlName }}
-            </button>
-        </div>-->
-    
+        <!--{{ sounds }}-->
     </div>
 </template>
 
 <script>
-    
     export default {
         name: 'TimerWrap',
         data() {
             return {
                 'tHours': 0,
                 'tMinutes': 0,
-                'tSeconds': 3,
+                'tSeconds': 300,
                 'pause': true,
+                sounds: [
+                    {
+                        'id': 'click',
+                        'url': 'src/audio/click.mp3',
+                    }
+                ],
             }
         },
         components: {},
@@ -168,54 +132,50 @@
                 }
                 return ss;
             },
+            colorTop() {
+            
+            },
+            colorBottom() {
+            
+            },
         },
         methods: {
             playTimer () {
-                this.pause = false;
-                
-                let timerBack = setInterval(() => {
-                    let ss = this.tSeconds;
-                    
-                    if (ss <= 0 || this.pause === true) {
-                        clearInterval(timerBack);
-                        this.pause = true;
-                        return;
-                    }
-                    ss--;
-                    
-                    this.tSeconds = ss;
-                    this.tMinutes = this.disMinutes;
-                },1000);
+                if (this.tSeconds > 0) {
+                    this.pause = false;
+
+                    let timerBack = setInterval(() => {
+                        let ss = this.tSeconds;
+
+                        if (ss <= 0 || this.pause === true) {
+                            clearInterval(timerBack);
+                            this.pause = true;
+                            return;
+                        }
+                        ss--;
+
+                        this.tSeconds = ss;
+                        this.tMinutes = this.disMinutes;
+                    },1000);
+                } else {
+                    alert('Set a time at first');
+                }
             },
             pauseTimer: function () {
                 this.pause = true;
             },
-            incrHours: function () {
-                this.tSeconds = this.tSeconds + 3600;
+            incr: function (n) {
+                this.tSeconds = this.tSeconds + n;
             },
-            decrHours: function () {
-                this.tSeconds = this.tSeconds - 3600;
+            decr: function (n) {
+                this.tSeconds = this.tSeconds - n;
                 this.checkForZero();
             },
-            incrMinutes: function () {
-                this.tSeconds = this.tSeconds + 60;
+            incrFast: function (n) {
+                this.tSeconds = this.tSeconds + n;
             },
-            decrMinutes: function () {
-                this.tSeconds = this.tSeconds - 60;
-                this.checkForZero();
-            },
-            incrSecond: function () {
-                this.tSeconds++;
-            },
-            decrSecond: function () {
-                this.tSeconds--;
-                this.checkForZero();
-            },
-            incrTenSeconds: function (n) {
-                this.tSeconds++;
-            },
-            decrTenSeconds: function () {
-                this.tSeconds--;
+            decrFast: function (n) {
+                this.tSeconds = this.tSeconds - n;
                 this.checkForZero();
             },
             checkForZero: function () {
@@ -226,6 +186,8 @@
 </script>
 
 <style lang="scss">
+    $grMax: (180) + 50;
+    
     input[type=number]::-webkit-inner-spin-button {
         /*-webkit-appearance: none;*/
     }
@@ -235,16 +197,40 @@
         margin: 0;
     }
 
+    @keyframes gradientAnim {
+        @for $i from 1 through 50 {
+            #{($i * 5%)} {
+                background: hsla(random(180), 90%, 30%, 1);
+            }
+        }
+    }
+
     /* Firefox */
     input[type=number] {
         -moz-appearance:textfield;
     }
-    
-    .devider {
-    }
     .disable {
         user-select: none;
         pointer-events: none;
+    }
+    button, button:hover, button:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+    }
+    .gradient {
+        z-index: -1;
+        display: block;
+        position: absolute;
+        height: 120px;
+        width: 120px;
+        border-radius: 50%;
+        transform: scale(0.01);
+        background: hsla(random(180), 100%, 30%, 1);
+        transition: all 0.8s cubic-bezier(0.05, 0.89, 0.6, 1.28);
     }
     
     .timer {
@@ -254,6 +240,17 @@
         flex-direction: column;
         justify-content: space-around;
         
+        &.playing {
+            .gradient {
+                transform: scale(10) translateY(-25%);
+                transition: all 0.8s cubic-bezier(0.94, -0.4, 0.6, 0.97);
+                animation: gradientAnim 60s linear infinite alternate;
+            }
+        }
+        & > div, & > h1 {
+            position: relative;
+            z-index: 5;
+        }
         &__title {
             font-weight: 100;
         }
@@ -262,6 +259,7 @@
             flex-direction: column;
             justify-content: center;
             margin: 0 10px;
+            user-select: none;
     
             &:hover {
                 button {
@@ -269,13 +267,8 @@
                 }
             }
             button {
-                cursor: pointer;
                 display: block;
                 background: transparent;
-                outline: none;
-                border: none;
-                color: inherit;
-                font: inherit;
                 opacity: 0;
                 transition: opacity 0.2s ease;
                 &:hover {
@@ -294,9 +287,11 @@
             span {
                 font-size: inherit;
                 display: inline-block;
+                text-shadow: 2px 0 0 #333;
                 
                 i {
                     font-style: normal;
+                    text-shadow: 2px 0 0 #333;
                 }
             }
         }
@@ -376,13 +371,15 @@
         }
         
         &__controls {
+            z-index: 1 !important;
             display: flex;
+            position: relative;
             width: 300px;
             margin: 0 auto;
             justify-content: space-around;
             
             button {
-                font-size: 30px;
+                font-size: 25px;
                 display: block;
                 border-radius: 50%;
                 background-color: transparent;
