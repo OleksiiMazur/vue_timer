@@ -4,21 +4,63 @@
             It's timer time
         </h1>
         <div class="timer-nums">
-            <span>
-                {{ tHours }} :
-            </span>
-            <span>
-                <i v-show="this.tMinutes.toString().length < 2">0</i>{{ tMinutes }} :
-            </span>
-            <span>
-                <i v-show="this.tSeconds.toString().length < 2">0</i>{{ tSeconds }}
-            </span>
+            <div class="timer-group">
+                <button class="more"
+                        :class="{disable: !pause}"
+                        @click="incrHours"
+                    >▲</button>
+                <span>
+                    {{ disHours }}
+                </span>
+                <button class="less"
+                        :class="{disable: !pause}"
+                        @click="decrHours"
+                    >▼</button>
+            </div>
+            <div class="devider"> : </div>
+            
+            <div class="timer-group">
+                <button class="more"
+                        :class="{disable: !pause}"
+                        @click="incrMinutes"
+                    >▲</button>
+                <span>
+                    <i v-show="this.disMinutes.toString().length < 2">0</i>{{ disMinutes }}
+                </span>
+                <button class="less"
+                        :class="{disable: !pause}"
+                        @click="decrMinutes"
+                    >▼</button>
+            </div>
+            <div class="devider"> : </div>
+            
+            <div class="timer-group">
+                <button class="more"
+                        :class="{disable: !pause}"
+                        @click="incrSecond"
+                        v-longclick="incrTenSeconds"
+                    >▲</button>
+                <span>
+                    <i v-show="this.disSeconds.toString().length < 2">0</i>{{ disSeconds }}
+                </span>
+                <button class="less"
+                        :class="{disable: !pause}"
+                        @click="decrSecond"
+                        v-longclick="decrTenSeconds"
+                    >▼</button>
+            </div>
         </div>
     
         <div class="timer__controls">
-            <button class="play"
+            <button v-if="this.pause"
+                    class="play"
                     @click="playTimer">
                 play
+            </button>
+            <button v-if="!this.pause"
+                    class="pause"
+                    @click="pauseTimer">
+                pause
             </button>
         </div>
     
@@ -80,73 +122,106 @@
 </template>
 
 <script>
+    
     export default {
         name: 'TimerWrap',
         data() {
             return {
                 'tHours': 0,
                 'tMinutes': 0,
-                'tSeconds': 62,
-                'pause': false,
+                'tSeconds': 3,
+                'pause': true,
             }
         },
         components: {},
         computed: {
-            // tHours() {
-            //     let curHH = this.hours + Math.trunc(this.total / 60 / 60);
-            //     this.hours = curHH;
-            //     return curHH;
-            // },
-            // tMinutes() {
-            //     let curMM = this.minutes + Math.trunc(this.total / 60);
-            //     this.minutes = curMM;
-            //     return curMM;
-            // },
-            // tSeconds() {
-            //     let curSS = this.seconds + Math.trunc(this.total);
-            //     this.seconds = curSS;
-            //     return curSS;
-            // },
+            disHours() {
+                let ss = this.tSeconds,
+                    mm = Math.trunc(ss / 60),
+                    hh = Math.trunc(mm / 60);
+                
+                return hh;
+            },
+            disMinutes() {
+                let ss = this.tSeconds,
+                    mm = Math.trunc(ss / 60),
+                    hh = Math.trunc(mm / 60);
+                
+                if (mm > 59) {
+                    mm = mm - hh * 60;
+                }
+                if (mm <= 0) {
+                    mm = 0
+                }
+                
+                return mm;
+            },
+            disSeconds() {
+                let ss = this.tSeconds,
+                    mm = Math.trunc(ss / 60);
+                
+                if (ss > 59) {
+                    ss = ss - mm * 60;
+                }
+                if (ss <= 0) {
+                    ss = 0;
+                }
+                return ss;
+            },
         },
         methods: {
             playTimer () {
-                this.pause = true;
+                this.pause = false;
                 
                 let timerBack = setInterval(() => {
-                    let ss = this.tSeconds,
-                        mm = this.tMinutes;
+                    let ss = this.tSeconds;
                     
-                    if (ss <= 0 || this.pause === false) {
+                    if (ss <= 0 || this.pause === true) {
                         clearInterval(timerBack);
-                        this.pause = false;
+                        this.pause = true;
                         return;
                     }
-
                     ss--;
                     
-                    if (ss > 59){
-                        mm = Math.trunc(ss / 60);
-                    } else {
-                        mm = 0;
-                    }
-                    if (Math.trunc(ss / 60) === ss / 60){
-                        console.log('60+')
-                    }
-
                     this.tSeconds = ss;
-                    this.tMinutes = mm;
+                    this.tMinutes = this.disMinutes;
                 },1000);
             },
             pauseTimer: function () {
-            
+                this.pause = true;
             },
-            editTimer: function () {
-
+            incrHours: function () {
+                this.tSeconds = this.tSeconds + 3600;
             },
-            stopTimer: function () {
-
-            }
-        }
+            decrHours: function () {
+                this.tSeconds = this.tSeconds - 3600;
+                this.checkForZero();
+            },
+            incrMinutes: function () {
+                this.tSeconds = this.tSeconds + 60;
+            },
+            decrMinutes: function () {
+                this.tSeconds = this.tSeconds - 60;
+                this.checkForZero();
+            },
+            incrSecond: function () {
+                this.tSeconds++;
+            },
+            decrSecond: function () {
+                this.tSeconds--;
+                this.checkForZero();
+            },
+            incrTenSeconds: function (n) {
+                this.tSeconds++;
+            },
+            decrTenSeconds: function () {
+                this.tSeconds--;
+                this.checkForZero();
+            },
+            checkForZero: function () {
+                this.tSeconds <= 0 ? this.tSeconds = 0 : 0;
+            },
+        },
     }
 </script>
 
@@ -165,6 +240,13 @@
         -moz-appearance:textfield;
     }
     
+    .devider {
+    }
+    .disable {
+        user-select: none;
+        pointer-events: none;
+    }
+    
     .timer {
         height: 100%;
         width: 100%;
@@ -175,23 +257,46 @@
         &__title {
             font-weight: 100;
         }
+        &-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 0 10px;
+    
+            &:hover {
+                button {
+                    opacity: 0.5;
+                }
+            }
+            button {
+                cursor: pointer;
+                display: block;
+                background: transparent;
+                outline: none;
+                border: none;
+                color: inherit;
+                font: inherit;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+                &:hover {
+                    opacity: 1;
+                }
+            }
+        }
         &-nums {
-            font-size: 40px;
+            font-size: 50px;
             display: flex;
             width: 300px;
             margin: 0 auto;
             justify-content: center;
+            align-items: center;
             
             span {
-                font-size: 40px;
+                font-size: inherit;
                 display: inline-block;
-                margin-right: 0.2em;
                 
                 i {
                     font-style: normal;
-                }
-                &:after {
-                
                 }
             }
         }
@@ -266,10 +371,6 @@
                         &:hover {
                         }
                     }
-                    .more {
-                        margin-bottom: 2px;
-                    }
-                    .less {}
                 }
             }
         }
@@ -281,7 +382,7 @@
             justify-content: space-around;
             
             button {
-                font-size: 12px;
+                font-size: 30px;
                 display: block;
                 border-radius: 50%;
                 background-color: transparent;
@@ -289,8 +390,8 @@
                 outline: none;
                 box-shadow: none;
                 color: #fff;
-                height: 50px;
-                width: 50px;
+                height: 120px;
+                width: 120px;
                 cursor: pointer;
                 transition: all 0.15s ease;
                 
