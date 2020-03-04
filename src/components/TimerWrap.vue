@@ -1,8 +1,6 @@
 <template>
     <div class="timer"
-         :class="{playing: !pause}"
-         :style="{}"
-         @keydown.space="playTimer">
+         :class="{playing: !pause}">
         <button class="mute"
                 @click="muted = !muted"
                 v-html="muteBtn">
@@ -91,9 +89,7 @@
         data() {
             return {
                 'muted': false,
-                'tHours': 0,
-                'tMinutes': 0,
-                'tSeconds': 3,
+                'tSeconds': 300,
                 'pause': true,
             }
         },
