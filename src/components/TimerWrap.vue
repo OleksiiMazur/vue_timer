@@ -10,6 +10,7 @@
             It's timer time
         </h1>
         <div class="timer-nums">
+            <timer-group />
             <div class="timer-group">
                 <button class="more"
                         :class="{disable: !pause}"
@@ -84,6 +85,8 @@
 </template>
 
 <script>
+    import TimerGroup from "./TimerGroup";
+    
     export default {
         name: 'TimerWrap',
         data() {
@@ -93,7 +96,9 @@
                 'pause': true,
             }
         },
-        components: {},
+        components: {
+            TimerGroup
+        },
         watch: {},
         computed: {
             disHours() {
