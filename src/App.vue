@@ -23,6 +23,7 @@ export default {
     font-weight: 100;
     height: 100%;
     overflow: hidden;
+    background: #222;
     color: #fff;
   }
   * {
@@ -43,6 +44,5 @@ export default {
     text-align: center;
     justify-content: center;
     align-items: center;
-    padding: 20px;
   }
 </style>
