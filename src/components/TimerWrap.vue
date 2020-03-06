@@ -265,6 +265,9 @@
         user-select: none;
         pointer-events: none;
     }
+    input, textarea, button, select, a {
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
     button, button:hover, button:focus {
         outline: none !important;
         box-shadow: none !important;
@@ -383,6 +386,9 @@
                 }
             }
             button {
+                outline: none !important;
+                box-shadow: none !important;
+                border: none !important;
                 display: block;
                 background: transparent;
                 opacity: 0;
