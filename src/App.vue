@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <TimerWrap />
   </div>
 </template>

@@ -1,6 +1,6 @@
 <template>
     <div class="timer"
-         :class="{playing: !pause}">
+         :class="{playing: !pause, finished: finished}">
         <button class="mute"
                 @click="muted = !muted"
                 v-html="muteBtn">
@@ -68,15 +68,20 @@
             </div>
         </div>
         <div class="timer__controls">
-            <button v-if="this.pause"
+            <button v-if="this.pause && !this.finished"
                     class="play"
-                    @click="[playTimer(), playSound('play', checkMute)]">
+                    @click="[playTimer(), playSound('play')]">
                 play
             </button>
             <button v-if="!this.pause"
                     class="pause"
-                    @click="[pauseTimer(), playSound('pause', checkMute)]">
+                    @click="[pauseTimer(), playSound('pause')]">
                 pause
+            </button>
+            <button v-if="this.pause && this.finished"
+                    class="stop"
+                    @click="[stopTimer(), playSound('pause')]">
+                stop
             </button>
             
             <div class="gradient"></div>
@@ -91,6 +96,8 @@
         name: 'TimerWrap',
         data() {
             return {
+                'lastTime': 0,
+                'finished': false,
                 'muted': false,
                 'tSeconds': 300,
                 'pause': true,
@@ -143,9 +150,6 @@
                     '</svg>' : btnSymbol = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M 24.1875 3 C 23.277344 3 22.332031 3.4375 21.5625 4.21875 L 9.9375 15.8125 C 9.296875 16.378906 9 17.476563 9 18.25 L 9 31.75 C 9 32.515625 9.316406 33.605469 9.90625 34.125 L 21.5 45.6875 C 22.554688 46.757813 23.527344 47 24.15625 47 C 25.824219 47 27 45.476563 27 43.3125 L 27 6.3125 C 27 4.035156 25.539063 3 24.1875 3 Z M 38.28125 6.8125 C 37.84375 6.886719 37.507813 7.242188 37.457031 7.683594 C 37.410156 8.125 37.652344 8.546875 38.0625 8.71875 C 44.011719 11.71875 48.0625 17.871094 48.0625 25 C 48.0625 32.128906 44.011719 38.28125 38.0625 41.28125 C 37.695313 41.40625 37.4375 41.734375 37.394531 42.117188 C 37.351563 42.503906 37.535156 42.878906 37.867188 43.082031 C 38.195313 43.28125 38.613281 43.273438 38.9375 43.0625 C 45.539063 39.730469 50.0625 32.894531 50.0625 25 C 50.0625 17.105469 45.539063 10.269531 38.9375 6.9375 C 38.765625 6.839844 38.570313 6.796875 38.375 6.8125 C 38.34375 6.8125 38.3125 6.8125 38.28125 6.8125 Z M 34.71875 12.125 C 34.273438 12.179688 33.917969 12.527344 33.855469 12.972656 C 33.789063 13.414063 34.027344 13.847656 34.4375 14.03125 C 38.339844 16.136719 41 20.246094 41 25 C 41 29.738281 38.351563 33.859375 34.46875 35.96875 C 33.984375 36.234375 33.808594 36.84375 34.078125 37.328125 C 34.34375 37.8125 34.953125 37.988281 35.4375 37.71875 C 39.945313 35.269531 43 30.484375 43 25 C 43 19.5 39.9375 14.695313 35.40625 12.25 C 35.226563 12.148438 35.019531 12.105469 34.8125 12.125 C 34.78125 12.125 34.75 12.125 34.71875 12.125 Z M 3 15.96875 C 1.324219 15.96875 -0.03125 17.324219 -0.03125 19 L -0.03125 31 C -0.03125 32.675781 1.324219 34.03125 3 34.03125 L 7.46875 34.03125 C 7.140625 33.246094 7 32.410156 7 31.75 L 7 18.25 C 7 17.59375 7.164063 16.761719 7.5 15.96875 Z M 30.53125 18.40625 C 30.046875 18.464844 29.679688 18.863281 29.65625 19.351563 C 29.632813 19.835938 29.960938 20.269531 30.4375 20.375 C 32.484375 20.910156 34 22.777344 34 25 C 34 27.222656 32.484375 29.089844 30.4375 29.625 C 29.902344 29.761719 29.582031 30.308594 29.71875 30.84375 C 29.855469 31.378906 30.402344 31.699219 30.9375 31.5625 C 33.851563 30.800781 36 28.136719 36 25 C 36 21.863281 33.847656 19.199219 30.9375 18.4375 C 30.804688 18.398438 30.667969 18.390625 30.53125 18.40625 Z"></path></svg>';
                 return this.innerHTML = btnSymbol;
             },
-            checkMute() {
-                return this.muted;
-            },
         },
         methods: {
             playTimer () {
@@ -164,11 +168,11 @@
                         ss--;
 
                         this.tSeconds = ss;
-                        this.tMinutes = this.disMinutes;
                         
                         if (ss === 0) {
-                            this.playSound('time_over', this.checkMute);
+                            this.playSound('music');
                             clearInterval(timerBack);
+                            this.finished = true;
                             this.pause = true;
                         }
                     },1000);
@@ -177,19 +181,29 @@
             pauseTimer: function () {
                 this.pause = true;
             },
+            stopTimer: function () {
+                this.finished = false;
+                if (this.muted === false) {
+                    this.muted = true;
+                    setTimeout(() => {
+                        this.muted = false;
+                    }, 550);
+                }
+                this.tSeconds = this.lastTime;
+                this.pause = true;
+            },
             incr: function (n) {
                 this.playSound('jump_up');
                 this.tSeconds = this.tSeconds + n;
+                this.lastTime = this.tSeconds;
             },
             decr: function (n) {
                 this.playSound('jump_down');
                 this.tSeconds = this.tSeconds - n;
-                this.checkForZero();
-            },
-            checkForZero: function () {
                 this.tSeconds <= 0 ? this.tSeconds = 0 : 0;
+                this.lastTime = this.tSeconds;
             },
-            playSound: function (role, muted) {
+            playSound: function (role) {
                 let audio;
                 
                 if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
@@ -198,7 +212,19 @@
                     audio = new Audio(require('@/audio/' + role + '.mp3'));
                 }
                 audio.play();
-                audio.muted = muted;
+                
+                let checkMuted = setInterval(() => {
+                    let mute = this.muted;
+
+                    if (mute === true || audio.paused) {
+                        clearInterval(checkMuted);
+                        audio.muted = this.muted;
+                        return;
+                    }
+                    audio.muted = this.muted;
+                },500);
+                
+                audio.muted = this.muted;
             },
         },
     }
@@ -218,8 +244,15 @@
 
     @keyframes gradientAnim {
         @for $i from 1 through 50 {
+            #{($i * 3%)} {
+                background: hsla(random((320) + 20), 70%, 30%, 1);
+            }
+        }
+    }
+    @keyframes gradientFinishedAnim {
+        @for $i from 1 through 50 {
             #{($i * 5%)} {
-                background: hsla(random(180), 90%, 30%, 1);
+                background: hsla(random(20), random((70%) + 20%), 30%, 1);
             }
         }
     }
@@ -250,7 +283,7 @@
         left: 50%;
         border-radius: 50%;
         transform:  translateX(-50%) scale(0.01);
-        background: hsla(random(180), 100%, 30%, 1);
+        background: hsla(random((145) + 65), 100%, 30%, 1);
         transition: all 0.7s cubic-bezier(0, 1.36, 0.98, 1.1);
         
         &--top {
@@ -315,7 +348,14 @@
             .gradient {
                 transform: translateX(-50%) scale(10) translateY(-25%);
                 transition: all 0.8s cubic-bezier(0.57, -0.35, 0.38, 0.85);
-                animation: gradientAnim 60s linear infinite alternate;
+                animation: gradientAnim 120s -30s linear infinite alternate;
+            }
+        }
+        &.finished {
+            .gradient {
+                transform: translateX(-50%) scale(10) translateY(-25%);
+                transition: all 0.8s cubic-bezier(0.57, -0.35, 0.38, 0.85);
+                animation: gradientFinishedAnim 60s -30s linear infinite alternate;
             }
         }
         & > div, & > h1 {
@@ -459,7 +499,7 @@
                 display: block;
                 border-radius: 50%;
                 background-color: transparent;
-                border: 2px solid #fff;
+                border: 5px solid #fff;
                 outline: none;
                 box-shadow: none;
                 color: #fff;
