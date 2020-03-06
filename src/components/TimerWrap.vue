@@ -252,7 +252,7 @@
     @keyframes gradientFinishedAnim {
         @for $i from 1 through 50 {
             #{($i * 5%)} {
-                background: hsla(random(20), random((70%) + 20%), 30%, 1);
+                background: hsla(random(40), random((100%) + 50%), 30%, 1);
             }
         }
     }
@@ -355,7 +355,7 @@
             .gradient {
                 transform: translateX(-50%) scale(10) translateY(-25%);
                 transition: all 0.8s cubic-bezier(0.57, -0.35, 0.38, 0.85);
-                animation: gradientFinishedAnim 60s -30s linear infinite alternate;
+                animation: gradientFinishedAnim 40s -15s linear infinite alternate;
             }
         }
         & > div, & > h1 {
